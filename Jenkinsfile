@@ -6,10 +6,10 @@ pipeline {
   }
   
   stages {
-      stage('hw'){
+      stage('Docker Build'){
         steps {
             script {
-              sh 'echo "hello world"'
+              sh 'faas-cli build  -t miniverso/jenkins-worker .'
             }
         }
       }
