@@ -1,0 +1,45 @@
+{
+  "name": "jks-worker",
+  "version": "0.0.0-development",
+  "description": "Jenkins Worker",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miniverso/jks-worker.git"
+  },
+  "author": "Bruno S L Almeida",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/miniverso/jks-worker/issues"
+  },
+  "homepage": "https://hub.docker.com/repository/docker/miniverso/jenkins-worker",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false,
+          "tarballDir": "dist"
+        }
+      ],
+      [
+        "@semantic-release/github",
+        {
+          "assets": "dist/*.tgz"
+        }
+      ]
+    ],
+    "branches": [
+      "master",
+      "develop"
+    ]
+  },
+  "dependencies": {
+    "semantic-release": "^17.4.3"
+  }
+}
