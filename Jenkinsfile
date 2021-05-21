@@ -37,7 +37,6 @@ pipeline {
 
     stage('Publish Docker Image') {
       environment {
-        TOKEN = credentials('gh-token')
         REGISTRY = credentials('dockerhub');
       }
       steps {
@@ -48,7 +47,6 @@ pipeline {
           
           def TAG = (env.BRANCH_NAME == "main" ) ? 'prd' : 'dev'
 
-          
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGA}"
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGB}"
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGC}"
