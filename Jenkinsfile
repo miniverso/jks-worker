@@ -54,7 +54,7 @@ pipeline {
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGC}"
 
           sh 'docker login -u $REGISTRY_USR -p $REGISTRY_PSW'
-          sh "docker push ${imageName}"
+          sh "docker push ${imageName} --all-tags"
         }
       }
     }
