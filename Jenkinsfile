@@ -10,7 +10,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         script {
-          def TAG = (env.BRANCH_NAME == "master" ) ? 'prd' : 'dev'
+          def TAG = (env.BRANCH_NAME == "main" ) ? 'prd' : 'dev'
           sh "docker build \
                 --network host \
                 --add-host=github.com:`dig +short github.com` \
