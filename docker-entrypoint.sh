@@ -18,5 +18,8 @@ if [ ! -z "$DOCKER_INSECURE_REGISTRY" ]; then
   echo "}">> /etc/docker/daemon.json
 fi
 
-exec sudo -u jenkins /usr/local/bin/jenkins-agent &
+echo "## Starting Jenkins Agent"
+exec /usr/local/bin/jenkins-agent &
+
+echo "## Starting Docker Container"
 exec dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 --group=jenkins
