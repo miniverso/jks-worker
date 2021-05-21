@@ -1,6 +1,6 @@
 FROM jenkins/inbound-agent as builder
 
-FROM docker:19-dind
+FROM docker:20-dind
 
 COPY --from=builder /usr/local/bin/jenkins-slave /usr/local/bin/jenkins-agent
 COPY --from=builder /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
@@ -32,8 +32,10 @@ RUN apk add --no-cache \
         curl \
         sudo \
         bash \
+        rust \
         yarn \
         unzip \
+        cargo \
         nodejs \
         py-pip \
         procps \
@@ -58,6 +60,7 @@ RUN apk add --no-cache \
         ca-certificates \
         chromium-chromedriver
 
+
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
@@ -65,7 +68,7 @@ ENV PATH /go/bin:$PATH
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin 
 RUN go get github.com/github-release/github-release
 
-RUN pip install --upgrade docker-compose pip \
+RUN pip install --upgrade pip docker-compose \
   && addgroup -g ${gid} ${group} \
   && adduser -D -h $HOME -u ${uid} -G ${group} ${user} \
   && rm -rf /var/cache/apk/* \
