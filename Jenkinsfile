@@ -13,8 +13,8 @@ pipeline {
           def TAG = (env.BRANCH_NAME == "master" ) ? 'prd' : 'dev'
           sh "docker build \
                 --network host \
-                --add-host=\"github.com:`dig +short github.com`\" \
-                --add-host=\"raw.githubcontent.com:`dig +short raw.githubcontent.com`\" \
+                --add-host=github.com:`dig +short github.com` \
+                --add-host=raw.githubcontent.com:`dig +short raw.githubcontent.com` \
                 -t ${imageName}:${TAG} ."          
         }
       }
@@ -42,15 +42,16 @@ pipeline {
       }
       steps {
         script {
-          def TAG = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-6").trim()
-          def TAGA = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-4").trim()
-          def TAGB = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-2").trim()
+          def TAGA = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-6").trim()
+          def TAGB = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-4").trim()
+          def TAGC = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-2").trim()
           
-          def B_TAG = (env.BRANCH_NAME == "develop" ) ? 'stage' : (env.BRANCH_NAME == "master" ) ? 'prod' : 'latest'
+          def TAG = (env.BRANCH_NAME == "master" ) ? 'prd' : 'dev'
+
           
-          sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAG}"
-          sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAGA}"
-          sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAGB}"
+          sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGA}"
+          sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGB}"
+          sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGC}"
 
           sh 'docker login -u $REGISTRY_USER -p $REGISTRY_PASS'
           sh "docker push ${imageName}"
