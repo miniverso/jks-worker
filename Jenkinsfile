@@ -46,14 +46,14 @@ pipeline {
           def TAGB = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-4").trim()
           def TAGC = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-2").trim()
           
-          def TAG = (env.BRANCH_NAME == "master" ) ? 'prd' : 'dev'
+          def TAG = (env.BRANCH_NAME == "main" ) ? 'prd' : 'dev'
 
           
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGA}"
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGB}"
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGC}"
 
-          sh 'docker login -u $REGISTRY_USER -p $REGISTRY_PASS'
+          sh 'docker login -u $REGISTRY_USR -p $REGISTRY_PSW'
           sh "docker push ${imageName}"
         }
       }
