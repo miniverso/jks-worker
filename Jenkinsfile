@@ -7,18 +7,18 @@ pipeline {
     }
   }
   stages {
-    stage('Build Docker Image') {
-      steps {
-        script {
-          def TAG = (env.BRANCH_NAME == "master" ) ? 'prd' : 'dev'
-          sh "docker build \
-                --network host \
-                --add-host=\"github.com:`dig +short github.com`\" \
-                --add-host=\"raw.githubcontent.com:`dig +short raw.githubcontent.com`\" \
-                -t ${imageName}:${TAG} ."          
-        }
-      }
-    }
+    // stage('Build Docker Image') {
+    //   steps {
+    //     script {
+    //       def TAG = (env.BRANCH_NAME == "master" ) ? 'prd' : 'dev'
+    //       sh "docker build \
+    //             --network host \
+    //             --add-host=\"github.com:`dig +short github.com`\" \
+    //             --add-host=\"raw.githubcontent.com:`dig +short raw.githubcontent.com`\" \
+    //             -t ${imageName}:${TAG} ."          
+    //     }
+    //   }
+    // }
 
     stage('Creating Release and Tagging') {
       when { 
