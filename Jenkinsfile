@@ -1,4 +1,4 @@
-def imageName = "miniverso/jks-worker"
+def imageName = "miniverso/jenkins-worker"
 
 pipeline {
   agent {
@@ -10,7 +10,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         script {
-          def TAG = (env.BRANCH_NAME == "develop" ) ? 'stage' : (env.BRANCH_NAME == "master" ) ? 'prod' : 'latest'
+          def TAG = (env.BRANCH_NAME == "master" ) ? 'prd' : 'dev'
           sh "docker build \
                 --network host \
                 --add-host=\"github.com:`dig +short github.com`\" \
@@ -26,34 +26,35 @@ pipeline {
           branch 'master';
         }
       }
+      environment {
+        TOKEN = credentials('gh-token')
+      }
       steps {
-        withCredentials([string(credentialsId: 'petala-gh-token', variable: 'TOKEN')]) {
           sh 'npm install'               
-          sh "GH_TOKEN=${TOKEN} node_modules/semantic-release/bin/semantic-release.js"
-        }
+          sh 'GH_TOKEN=$TOKEN node_modules/semantic-release/bin/semantic-release.js'
       }
     }  
 
-    stage('Publish Docker Image') {
-      steps {
-        script {
-          def TAG = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-6").trim()
-          def TAGA = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-4").trim()
-          def TAGB = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-2").trim()
+    // stage('Publish Docker Image') {
+    //   steps {
+    //     script {
+    //       def TAG = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-6").trim()
+    //       def TAGA = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-4").trim()
+    //       def TAGB = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-2").trim()
           
-          def B_TAG = (env.BRANCH_NAME == "develop" ) ? 'stage' : (env.BRANCH_NAME == "master" ) ? 'prod' : 'latest'
+    //       def B_TAG = (env.BRANCH_NAME == "develop" ) ? 'stage' : (env.BRANCH_NAME == "master" ) ? 'prod' : 'latest'
           
-          sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAG}"
-          sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAGA}"
-          sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAGB}"
+    //       sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAG}"
+    //       sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAGA}"
+    //       sh "docker tag ${imageName}:${B_TAG} ${imageName}:${TAGB}"
 
-          withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            sh "docker login -p ${PASSWORD} -u ${USERNAME} "
-          }
+    //       withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+    //         sh "docker login -p ${PASSWORD} -u ${USERNAME} "
+    //       }
 
-          sh "docker push ${imageName}"
-        }
-      }
-    }
+    //       sh "docker push ${imageName}"
+    //     }
+    //   }
+    // }
   }
 }
