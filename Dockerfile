@@ -50,6 +50,7 @@ RUN apk add --no-cache \
         musl-dev \
         harfbuzz \
         openjdk8 \
+        bind-tools \
         libffi-dev \
         nodejs-npm \
         python3-dev \
@@ -59,7 +60,6 @@ RUN apk add --no-cache \
         openssh-client \
         ca-certificates \
         chromium-chromedriver
-
 
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
@@ -77,7 +77,7 @@ RUN pip install --upgrade pip docker-compose \
   && ln -s /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-slave \
   && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar 
 
-ENV SONAR_VERSION 4.6.0.2311
+ENV SONAR_VERSION 4.6.2.2472
 RUN mkdir -p /opt/sonnar \
  && curl -H 'Cache-Control: no-cache ' https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_VERSION}-linux.zip  -o sonar-scanner-cli-${SONAR_VERSION}-linux.zip \
  && unzip sonar-scanner-cli-${SONAR_VERSION}-linux.zip \
