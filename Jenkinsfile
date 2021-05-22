@@ -21,11 +21,6 @@ pipeline {
     }
 
     stage('Creating Release and Tagging') {
-      when { 
-         not {
-          branch 'master';
-        }
-      }
       environment {
         TOKEN = credentials('gh-token')
       }
