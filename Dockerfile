@@ -43,6 +43,7 @@ RUN apk add --no-cache \
         python2 \
         python3 \
         git-lfs \
+        libjpeg \
         openssh \
         chromium \
         musl-dev \
