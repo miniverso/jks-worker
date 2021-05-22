@@ -44,6 +44,7 @@ RUN apk add --no-cache \
         python3 \
         git-lfs \
         openssh \
+        libjpeg \
         chromium \
         musl-dev \
         freetype \
@@ -53,13 +54,15 @@ RUN apk add --no-cache \
         bind-tools \
         libffi-dev \
         nodejs-npm \
+        libpng-dev \
         python3-dev \
-        libjpeg-dev \
         openssl-dev \
         ttf-freefont \
         freetype-dev \
+        libjpeg-turbo \
         openssh-client \
         ca-certificates \
+        libjpeg-turbo-dev \
         chromium-chromedriver
 
 ENV GOROOT /usr/lib/go
