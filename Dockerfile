@@ -43,7 +43,6 @@ RUN apk add --no-cache \
         python2 \
         python3 \
         git-lfs \
-        libjpeg \
         openssh \
         chromium \
         musl-dev \
@@ -55,6 +54,7 @@ RUN apk add --no-cache \
         libffi-dev \
         nodejs-npm \
         python3-dev \
+        libjpeg-dev \
         openssl-dev \
         ttf-freefont \
         freetype-dev \
