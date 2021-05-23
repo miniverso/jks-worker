@@ -104,7 +104,7 @@ ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 RUN mkdir -p /home/${user}/.jenkins \
   && mkdir -p ${AGENT_WORKDIR} \
   && chown -R ${user} /home/${user} \
-  && chown ${user}  ${AGENT_WORKDIR}
+  && chown ${user}  ${AGENT_WORKDIR} 
 
 USER ${user}
 ENV HOME /home/${user}
