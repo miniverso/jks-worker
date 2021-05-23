@@ -103,7 +103,7 @@ RUN curl -LO -H 'Cache-Control: no-cache' "https://storage.googleapis.com/kubern
 ENV AGENT_WORKDIR=${AGENT_WORKDIR}
 RUN mkdir -p /home/${user}/.jenkins \
   && mkdir -p ${AGENT_WORKDIR} \
-  && chown ${user} /home/${user}/.jenkins \
+  && chown -R ${user} /home/${user} \
   && chown ${user}  ${AGENT_WORKDIR}
 
 USER ${user}
@@ -112,6 +112,7 @@ ENV HOME /home/${user}
 VOLUME /home/${user}/.jenkins
 VOLUME ${AGENT_WORKDIR}
 WORKDIR /home/${user}
+RUN mkdir ~/.mc
 
 USER root
 COPY docker-entrypoint.sh /docker-entrypoint.sh
