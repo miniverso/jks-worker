@@ -112,7 +112,7 @@ ENV HOME /home/${user}
 VOLUME /home/${user}/.jenkins
 VOLUME ${AGENT_WORKDIR}
 WORKDIR /home/${user}
-RUN mkdir ~/.mc
+RUN mkdir ~/.mc && mkdir ~/.docker
 
 USER root
 COPY docker-entrypoint.sh /docker-entrypoint.sh
