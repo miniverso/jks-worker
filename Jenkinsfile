@@ -46,7 +46,7 @@ pipeline {
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGB}"
           sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGC}"
 
-          sh 'docker login -u $REGISTRY_USR -p $REGISTRY_PSW'
+          sh 'docker login -u $REGISTRY_USR -p $REGISTRY_PSW registry.gitlab.com'
           sh "docker push ${imageName} --all-tags"
         }
       }
