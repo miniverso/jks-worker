@@ -1,4 +1,4 @@
-def imageName = "miniverso/jenkins-worker"
+def imageName = "registry.gitlab.com/miniveso/jks-worker"
 
 pipeline {
   agent {
@@ -32,7 +32,7 @@ pipeline {
 
     stage('Publish Docker Image') {
       environment {
-        REGISTRY = credentials('dockerhub');
+        REGISTRY = credentials('gitlab');
       }
       steps {
         script {
