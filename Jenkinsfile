@@ -1,4 +1,4 @@
-def imageName = "registry.gitlab.com/miniveso/jks-worker"
+def imageName = "registry.gitlab.com/miniverso/jks-worker"
 
 pipeline {
   agent {
