@@ -63,7 +63,8 @@ RUN apk add --no-cache \
         openssh-client \
         ca-certificates \
         libjpeg-turbo-dev \
-        chromium-chromedriver
+        openssh-client-common \ 
+        chromium-chromedriver 
 
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
