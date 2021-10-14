@@ -19,7 +19,7 @@ ENV LANG C.UTF-8
 ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk/jre
 ENV PATH $PATH:/usr/lib/jvm/java-1.8-openjdk/jre/bin:/usr/lib/jvm/java-1.8-openjdk/bin
 
-RUN apk update && apk add --no-cache \
+RUN apk add --no-cache \
         go \
         git \
         nss \
@@ -44,9 +44,6 @@ RUN apk update && apk add --no-cache \
         python2 \
         python3 \
         git-lfs \
-        openssh \
-        libjpeg \
-        chromium \
         musl-dev \
         freetype \
         musl-dev \
@@ -54,16 +51,9 @@ RUN apk update && apk add --no-cache \
         openjdk8 \
         bind-tools \
         libffi-dev \
-        libpng-dev \
         python3-dev \
         openssl-dev \
-        ttf-freefont \
-        freetype-dev \
-        libjpeg-turbo \
-        openssh-client \
-        ca-certificates \
-        libjpeg-turbo-dev \
-        chromium-chromedriver 
+        ca-certificates 
 
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
