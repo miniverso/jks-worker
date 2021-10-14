@@ -24,6 +24,7 @@ RUN apk add --no-cache \
         git \
         nss \
         img \
+        npm \
         gcc \
         make \
         bash \
@@ -53,7 +54,6 @@ RUN apk add --no-cache \
         openjdk8 \
         bind-tools \
         libffi-dev \
-        nodejs-npm \
         libpng-dev \
         python3-dev \
         openssl-dev \
@@ -63,7 +63,6 @@ RUN apk add --no-cache \
         openssh-client \
         ca-certificates \
         libjpeg-turbo-dev \
-        openssh-client-common \ 
         chromium-chromedriver 
 
 ENV GOROOT /usr/lib/go
