@@ -29,6 +29,7 @@ RUN apk add --no-cache \
         make \
         bash \
         curl \
+        lftp \
         glib \
         curl \
         sudo \
@@ -54,6 +55,8 @@ RUN apk add --no-cache \
         python3-dev \
         openssl-dev \
         ca-certificates 
+
+RUN alias ftp=lftp
 
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
