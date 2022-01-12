@@ -54,6 +54,7 @@ RUN apk add --no-cache \
         libffi-dev \
         python3-dev \
         openssl-dev \
+        mysql-client \
         ca-certificates 
 
 RUN alias ftp=lftp
