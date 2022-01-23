@@ -8,6 +8,12 @@ pipeline {
   }
   stages {
     stage('Build Docker Image') {
+      when{
+        anyOf {
+          branch 'main'
+          branch 'develop'
+        }
+      }
       steps {
         script {
           def TAG = (env.BRANCH_NAME == "main" ) ? 'prd' : 'dev'
@@ -24,6 +30,12 @@ pipeline {
       environment {
         TOKEN = credentials('gh-token')
       }
+      when{
+        anyOf {
+          branch 'main'
+          branch 'develop'
+        }
+      }
       steps {
           sh 'npm install'               
           sh 'GH_TOKEN=$TOKEN node_modules/semantic-release/bin/semantic-release.js'
@@ -33,6 +45,12 @@ pipeline {
     stage('Publish Docker Image') {
       environment {
         REGISTRY = credentials('gitlab');
+      }
+      when{
+        anyOf {
+          branch 'main'
+          branch 'develop'
+        }
       }
       steps {
         script {
