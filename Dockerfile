@@ -57,20 +57,21 @@ RUN apk add --no-cache \
         mysql-client \
         ca-certificates 
 
-ENV BASE_URL="https://get.helm.sh"
+ENV HELM_VERSION=3.7.2
+ENV HELM_BASE_URL="https://get.helm.sh"
 RUN case `uname -m` in \
-        x86_64) ARCH=amd64; ;; \
-        armv7l) ARCH=arm; ;; \
-        aarch64) ARCH=arm64; ;; \
-        ppc64le) ARCH=ppc64le; ;; \
-        s390x) ARCH=s390x; ;; \
+        x86_64) HELM_ARCH=amd64; ;; \
+        armv7l) HELM_ARCH=arm; ;; \
+        aarch64) HELM_ARCH=arm64; ;; \
+        ppc64le) HELM_ARCH=ppc64le; ;; \
+        s390x) HELM_ARCH=s390x; ;; \
         *) echo "un-supported arch, exit ..."; exit 1; ;; \
     esac && \
     apk add --update --no-cache wget git && \
-    wget ${BASE_URL}/helm-v${VERSION}-linux-${ARCH}.tar.gz -O - | tar -xz && \
-    mv linux-${ARCH}/helm /usr/bin/helm && \
+    wget ${HELM_BASE_URL}/helm-v${HELM_VERSION}-linux-${HELM_ARCH}.tar.gz -O - | tar -xz && \
+    mv linux-${HELM_ARCH}/helm /usr/bin/helm && \
     chmod +x /usr/bin/helm && \
-    rm -rf linux-${ARCH}
+    rm -rf linux-${HELM_ARCH}
 
 RUN chmod +x /usr/bin/helm
 
