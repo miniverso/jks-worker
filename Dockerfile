@@ -35,6 +35,7 @@ RUN apk add --no-cache \
         sudo \
         bash \
         rust \
+        helm \
         yarn \
         unzip \
         cargo \
