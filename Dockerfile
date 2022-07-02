@@ -16,9 +16,6 @@ USER root
 
 ENV LANG C.UTF-8
 
-ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk/jre
-ENV PATH $PATH:/usr/lib/jvm/java-1.8-openjdk/jre/bin:/usr/lib/jvm/java-1.8-openjdk/bin
-
 RUN apk add --no-cache \
         go \
         git \
@@ -49,13 +46,16 @@ RUN apk add --no-cache \
         freetype \
         musl-dev \
         harfbuzz \
-        openjdk8 \
+        openjdk11 \
         bind-tools \
         libffi-dev \
         python3-dev \
         openssl-dev \
         mysql-client \
         ca-certificates 
+
+ENV JAVA_HOME /usr/lib/jvm/default-jvm/jre
+ENV PATH $PATH:/usr/lib/jvm/default-jvm/jre/bin
 
 ENV HELM_VERSION=3.7.2
 ENV HELM_BASE_URL="https://get.helm.sh"
