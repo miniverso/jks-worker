@@ -81,13 +81,6 @@ ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin \
-  && go get github.com/github-release/github-release \
-  && git clone https://github.com/minio/mc \
-  && cd mc \
-  && go install -v -ldflags "$(go run buildscripts/gen-ldflags.go)" \ 
-  && cd -
-
 RUN pip install --upgrade pip docker-compose \
   && addgroup -g ${gid} ${group} \
   && adduser -D -h $HOME -u ${uid} -G ${group} ${user} \
