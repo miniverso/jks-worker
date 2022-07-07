@@ -15,31 +15,9 @@
   "homepage": "https://hub.docker.com/repository/docker/miniverso/jenkins-worker",
   "publishConfig": {
     "access": "restricted"
-  },
-  "release": {
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false,
-          "tarballDir": "dist"
-        }
-      ],
-      [
-        "@semantic-release/github",
-        {
-          "assets": "dist/*.tgz"
-        }
-      ]
-    ],
-    "branches": [
-      "main",
-      "develop"
-    ]
-  },
+  },  
   "dependencies": {
-    "semantic-release": "^17.4.3"
+    "conventional-changelog-conventionalcommits": "^4.6.3",
+    "semantic-release": "^19.0.2"
   }
 }
