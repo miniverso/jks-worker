@@ -81,7 +81,7 @@ ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
-RUN pip install --upgrade pip docker-compose \
+RUN pip install --upgrade pip docker-compose aws-shell \
   && addgroup -g ${gid} ${group} \
   && adduser -D -h $HOME -u ${uid} -G ${group} ${user} \
   && rm -rf /var/cache/apk/* \
