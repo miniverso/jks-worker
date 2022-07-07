@@ -17,7 +17,7 @@
     "access": "restricted"
   },  
   "dependencies": {
-    "conventional-changelog-conventionalcommits": "^4.6.3",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
     "semantic-release": "^19.0.2"
   }
 }
