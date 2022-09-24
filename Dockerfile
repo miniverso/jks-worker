@@ -39,7 +39,6 @@ RUN apk add --no-cache \
         py-pip \
         procps \
         openssl \
-        python2 \
         python3 \
         git-lfs \
         musl-dev \
@@ -75,13 +74,13 @@ RUN case `uname -m` in \
 
 RUN chmod +x /usr/bin/helm
 
-RUN alias ftp=lftp
+RUN alias ftp=lftp 
 
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
-RUN pip install --upgrade pip docker-compose aws-shell \
+RUN pip install --upgrade pip docker-compose \
   && addgroup -g ${gid} ${group} \
   && adduser -D -h $HOME -u ${uid} -G ${group} ${user} \
   && rm -rf /var/cache/apk/* \
