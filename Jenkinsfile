@@ -32,7 +32,6 @@ pipeline {
       }
       when{
         anyOf {
-          branch 'main'
           branch 'develop'
         }
       }
