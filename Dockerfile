@@ -74,7 +74,14 @@ RUN case `uname -m` in \
 
 RUN chmod +x /usr/bin/helm
 
-RUN alias ftp=lftp 
+RUN alias ftp=lftp \
+  && alias s3="aws --endpoint-url https://eu2.contabostorage.com s3"
+
+RUN cd /tmp \
+    && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install \
+    && cd -
 
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
