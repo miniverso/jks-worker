@@ -1,4 +1,5 @@
 def imageName = "registry.gitlab.com/miniverso/jks-worker"
+def semantic = "registry.gitlab.com/miniverso/semantic-release:prd"
 
 pipeline {
   agent {
@@ -24,22 +25,22 @@ pipeline {
                 -t ${imageName}:${TAG} ."          
         }
       }
-    }
+    }    
 
     stage('Creating Release and Tagging') {
       environment {
-        TOKEN = credentials('gh-token')
+        GH_TOKEN = credentials('gh-token')
+        // todo migrate image to grupo loja registry
+        REGISTRY = credentials('gitlab')
       }
-      when{
-        anyOf {
-          branch 'develop'
-        }
+      when {
+        branch 'develop'
       }
       steps {
-          sh 'npm install'               
-          sh 'GH_TOKEN=$TOKEN node_modules/semantic-release/bin/semantic-release.js'
+        sh 'docker login -u $REGISTRY_USR -p $REGISTRY_PSW registry.gitlab.com'
+        sh "docker run -v `pwd`:/opt/app -e GH_TOKEN=$GH_TOKEN ${semantic} run"
       }
-    }  
+    }    
 
     stage('Publish Docker Image') {
       environment {
