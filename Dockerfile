@@ -41,6 +41,7 @@ RUN apk add --no-cache \
         openssl \
         python3 \
         git-lfs \
+        py3-yaml \
         musl-dev \
         freetype \
         musl-dev \
