@@ -20,7 +20,7 @@ pipeline {
           sh "docker build \
                 --network host \
                 --add-host=github.com:`dig +short github.com` \
-                --add-host=raw.githubcontent.com:`dig +short raw.githubcontent.com` \
+                --add-host=registry.yarnpkg.com:`dig +short registry.yarnpkg.com | head -2 | tail -1` \
                 -t ${imageName}:${TAG} ."          
         }
       }
