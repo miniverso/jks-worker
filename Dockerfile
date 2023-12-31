@@ -1,6 +1,6 @@
 FROM jenkins/inbound-agent as builder
 
-FROM docker:20-dind-rootless
+FROM docker:23-dind-rootless
 
 COPY --from=builder /usr/local/bin/jenkins-slave /usr/local/bin/jenkins-agent
 COPY --from=builder /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
@@ -41,7 +41,6 @@ RUN apk add --no-cache \
         openssl \
         python3 \
         git-lfs \
-        py3-yaml \
         musl-dev \
         freetype \
         musl-dev \
@@ -78,18 +77,11 @@ RUN chmod +x /usr/bin/helm
 RUN alias ftp=lftp \
   && alias s3="aws --endpoint-url https://eu2.contabostorage.com s3"
 
-RUN cd /tmp \
-    && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-    && unzip awscliv2.zip \
-    && ./aws/install \
-    && cd -
-
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
-RUN pip install --upgrade pip docker-compose \
-  && addgroup -g ${gid} ${group} \
+RUN addgroup -g ${gid} ${group} \
   && adduser -D -h $HOME -u ${uid} -G ${group} ${user} \
   && rm -rf /var/cache/apk/* \
   && chmod +x /usr/local/bin/jenkins-agent \
