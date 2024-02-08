@@ -1,6 +1,6 @@
 FROM jenkins/inbound-agent as builder
 
-FROM docker:23-dind-rootless
+FROM docker:25.0.3-dind-rootless
 
 COPY --from=builder /usr/local/bin/jenkins-slave /usr/local/bin/jenkins-agent
 COPY --from=builder /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
