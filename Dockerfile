@@ -1,125 +1,96 @@
-FROM jenkins/inbound-agent as builder
+ARG JAVA_VERSION=17.0.8.1_1
+ARG ALPINE_TAG=3.19.1
+FROM eclipse-temurin:"${JAVA_VERSION}"-jdk-alpine AS jre-build
 
-FROM docker:25.0.3-dind-rootless
+RUN if [ "$TARGETPLATFORM" != 'linux/arm/v7' ]; then \
+    case "$(jlink --version 2>&1)" in \
+      # jlink version 11 has less features than JDK17+
+      "11."*) strip_java_debug_flags="--strip-debug" ;; \
+      *) strip_java_debug_flags="--strip-java-debug-attributes" ;; \
+    esac; \
+    jlink \
+      --add-modules ALL-MODULE-PATH \
+      "$strip_java_debug_flags" \
+      --no-man-pages \
+      --no-header-files \
+      --compress=2 \
+      --output /javaruntime; \
+  else \
+    cp -r /opt/java/openjdk /javaruntime; \
+  fi
 
-COPY --from=builder /usr/local/bin/jenkins-slave /usr/local/bin/jenkins-agent
-COPY --from=builder /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
+FROM docker:25-dind
 
 ARG user=jenkins
 ARG group=jenkins
-ARG uid=10000
-ARG gid=10000
+ARG uid=1000
+ARG gid=1000
 
-ARG AGENT_WORKDIR=/home/${user}/agent
+RUN addgroup -g "${gid}" "${group}" \
+  && adduser -h /home/"${user}" -u "${uid}" -G "${group}" -D "${user}" || echo "user ${user} already exists."
 
-USER root
+ARG AGENT_WORKDIR=/home/"${user}"/agent
 
-ENV LANG C.UTF-8
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+ENV TZ=Etc/UTC
 
 RUN apk add --no-cache \
-        go \
-        git \
-        nss \
-        img \
-        npm \
-        gcc \
-        make \
-        bash \
-        curl \
-        lftp \
-        glib \
-        curl \
-        sudo \
-        bash \
-        rust \
-        yarn \
-        unzip \
-        cargo \
-        nodejs \
-        py-pip \
-        procps \
-        openssl \
-        python3 \
-        git-lfs \
-        musl-dev \
-        freetype \
-        musl-dev \
-        harfbuzz \
-        openjdk11 \
-        bind-tools \
-        libffi-dev \
-        python3-dev \
-        openssl-dev \
-        mysql-client \
-        ca-certificates 
+      curl \
+      bash \
+      git \
+      git-lfs \
+      musl-locales \
+      openssh-client \
+      openssl \
+      procps \
+      tzdata \
+      tzdata-utils \
+    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_HOME /usr/lib/jvm/default-jvm/jre
-ENV PATH $PATH:/usr/lib/jvm/default-jvm/jre/bin
+ARG VERSION=3206.vb_15dcf73f6a_9
+ADD --chown="${user}":"${group}" "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar" /usr/share/jenkins/agent.jar
+RUN chmod 0644 /usr/share/jenkins/agent.jar \
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar
 
-ENV HELM_VERSION=3.7.2
-ENV HELM_BASE_URL="https://get.helm.sh"
-RUN case `uname -m` in \
-        x86_64) HELM_ARCH=amd64; ;; \
-        armv7l) HELM_ARCH=arm; ;; \
-        aarch64) HELM_ARCH=arm64; ;; \
-        ppc64le) HELM_ARCH=ppc64le; ;; \
-        s390x) HELM_ARCH=s390x; ;; \
-        *) echo "un-supported arch, exit ..."; exit 1; ;; \
-    esac && \
-    apk add --update --no-cache wget git && \
-    wget ${HELM_BASE_URL}/helm-v${HELM_VERSION}-linux-${HELM_ARCH}.tar.gz -O - | tar -xz && \
-    mv linux-${HELM_ARCH}/helm /usr/bin/helm && \
-    chmod +x /usr/bin/helm && \
-    rm -rf linux-${HELM_ARCH}
+ENV JAVA_HOME=/opt/java/openjdk
+COPY --from=jre-build /javaruntime "$JAVA_HOME"
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
-RUN chmod +x /usr/bin/helm
+USER "${user}"
+ENV AGENT_WORKDIR="${AGENT_WORKDIR}"
+RUN mkdir -p /home/"${user}"/.jenkins && mkdir -p "${AGENT_WORKDIR}"
 
-RUN alias ftp=lftp \
-  && alias s3="aws --endpoint-url https://eu2.contabostorage.com s3"
+VOLUME /home/"${user}"/.jenkins
+VOLUME "${AGENT_WORKDIR}"
+WORKDIR /home/"${user}"
+ENV user=${user}
+LABEL \
+    org.opencontainers.image.vendor="Jenkins project" \
+    org.opencontainers.image.title="Official Jenkins Agent Base Docker image" \
+    org.opencontainers.image.description="This is Grupo Loja base image, which provides the Jenkins agent executable (agent.jar) and a DinD" \
+    org.opencontainers.image.version="${VERSION}" \
+    org.opencontainers.image.url="https://www.jenkins.io/" \
+    org.opencontainers.image.source="https://github.com/jenkinsci/docker-agent" \
+    org.opencontainers.image.licenses="MIT"
 
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
+USER root
+RUN apk add --no-cache \
+  zip \
+  curl \
+  bind-tools
 
-RUN addgroup -g ${gid} ${group} \
-  && adduser -D -h $HOME -u ${uid} -G ${group} ${user} \
-  && rm -rf /var/cache/apk/* \
-  && chmod +x /usr/local/bin/jenkins-agent \
-  && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -s /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-slave \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar 
+ENV AGENT_VERSION=3206.vb_15dcf73f6a_9-3
+RUN curl -LO -H 'Cache-Control: no-cache' "https://github.com/jenkinsci/docker-agent/blob/${AGENT_VERSION}/jenkins-agent" &&\
+    mv jenkins-agent /usr/local/bin/jenkins-agent &&\
+    chmod +x /usr/local/bin/jenkins-agent &&\
+    ln -s /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-slave
 
-ENV SONAR_VERSION 4.6.2.2472
-RUN mkdir -p /opt/sonnar \
- && curl -H 'Cache-Control: no-cache ' https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_VERSION}-linux.zip  -o sonar-scanner-cli-${SONAR_VERSION}-linux.zip \
- && unzip sonar-scanner-cli-${SONAR_VERSION}-linux.zip \
- && rm sonar-scanner-cli-${SONAR_VERSION}-linux.zip \
- && mv /sonar-scanner-${SONAR_VERSION}-linux /opt/sonnar \
- && ln -s /opt/sonnar/sonar-scanner-${SONAR_VERSION}-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner \
- && chmod +x /usr/local/bin/sonar-scanner \
- && rm /opt/sonnar/sonar-scanner-${SONAR_VERSION}-linux/jre/bin/java \
- && ln -s /usr/bin/java /opt/sonnar/sonar-scanner-${SONAR_VERSION}-linux/jre/bin/java
-
-RUN curl -LO -H 'Cache-Control: no-cache' "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" \
+ENV KUBECTL_VERSION=v1.29.1
+RUN curl -LO -H 'Cache-Control: no-cache' "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
  && mv kubectl /usr/local/bin \
  && chmod +x /usr/local/bin/kubectl
 
-ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir -p /home/${user}/.jenkins \
-  && mkdir -p ${AGENT_WORKDIR} \
-  && chown -R ${user} /home/${user} \
-  && chown ${user}  ${AGENT_WORKDIR} 
-
-USER ${user}
-ENV HOME /home/${user}
-
-VOLUME /home/${user}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR /home/${user}
-RUN mkdir ~/.mc && mkdir ~/.docker
-
-USER root
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod 755 /docker-entrypoint.sh 
+RUN chmod u+x /docker-entrypoint.sh 
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

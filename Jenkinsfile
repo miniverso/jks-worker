@@ -1,5 +1,5 @@
-def imageName = "registry.gitlab.com/miniverso/jks-worker"
-def semantic = "registry.gitlab.com/miniverso/semantic-release:prd"
+def imageName = "registry.gitlab.com/grupo-loja/jks-worker"
+def semantic = "registry.gitlab.com/grupo-loja/semantic-release:prd"
 
 pipeline {
   agent {
@@ -10,14 +10,13 @@ pipeline {
   stages {
     stage('Build Docker Image') {
       when{
-        anyOf {
+        not{
           branch 'main'
-          branch 'develop'
         }
       }
       steps {
         script {
-          def TAG = (env.BRANCH_NAME == "main" ) ? 'prd' : 'dev'
+          def TAG = (env.BRANCH_NAME == "develop" ) ? 'dev' : 'other'
           sh "docker build \
                 --network host \
                 --add-host=github.com:`dig +short github.com` \
@@ -30,8 +29,7 @@ pipeline {
     stage('Creating Release and Tagging') {
       environment {
         GH_TOKEN = credentials('gh-token')
-        // todo migrate image to grupo loja registry
-        REGISTRY = credentials('gitlab')
+        REGISTRY = credentials('gl-gitlab')
       }
       when {
         branch 'develop'
@@ -42,30 +40,38 @@ pipeline {
       }
     }    
 
-    stage('Publish Docker Image') {
-      environment {
-        REGISTRY = credentials('gitlab');
-      }
-      when{
-        anyOf {
-          branch 'main'
-          branch 'develop'
+    stage('Tagging Image') {
+      parallel {
+        stage('Tagging Dev') {
+          when {
+            branch 'develop'
+          }
+          steps {
+            script {
+              def TAGA = sh(returnStdout: true, script: './scripts/getTag.sh 3').trim()
+              def TAGB = sh(returnStdout: true, script: './scripts/getTag.sh 2').trim()
+              def TAGC = sh(returnStdout: true, script: './scripts/getTag.sh 1').trim()
+
+              def TAG = 'dev'
+
+              sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGA}"
+              sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGB}"
+              sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGC}"
+            }
+          }
         }
-      }
-      steps {
-        script {
-          def TAGA = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-6").trim()
-          def TAGB = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-4").trim()
-          def TAGC = sh(returnStdout: true, script: "git tag --sort version:refname | tail -1 | cut -c2-2").trim()
-          
-          def TAG = (env.BRANCH_NAME == "main" ) ? 'prd' : 'dev'
+        stage('Tagging Prd') {
+          when {
+            branch 'main'
+          }
+          steps {
+            script {
+              def TAG = sh(returnStdout: true, script: './scripts/getTag.sh 3').trim()
 
-          sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGA}"
-          sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGB}"
-          sh "docker tag ${imageName}:${TAG} ${imageName}:${TAGC}"
-
-          sh 'docker login -u $REGISTRY_USR -p $REGISTRY_PSW registry.gitlab.com'
-          sh "docker push ${imageName} --all-tags"
+              sh "docker pull ${imageName}:${TAG}"
+              sh "docker tag ${imageName}:${TAG} ${imageName}:prd"
+            }
+          }
         }
       }
     }
