@@ -75,5 +75,18 @@ pipeline {
         }
       }
     }
+    stage('Deploy'){
+      when{
+        anyOf {
+          branch 'main'
+          branch 'develop'
+        }
+      }
+      steps{
+        script{
+          sh "docker push ${imageName} --all-tags"
+        }
+      }
+    }
   }
 }
