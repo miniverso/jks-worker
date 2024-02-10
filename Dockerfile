@@ -75,8 +75,10 @@ LABEL \
 
 USER root
 RUN apk add --no-cache \
+  npm \
   zip \
   curl \
+  nodejs \
   bind-tools
 
 ENV AGENT_VERSION=3206.vb_15dcf73f6a_9-3
@@ -89,6 +91,8 @@ ENV KUBECTL_VERSION=v1.29.1
 RUN curl -LO -H 'Cache-Control: no-cache' "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
  && mv kubectl /usr/local/bin \
  && chmod +x /usr/local/bin/kubectl
+
+RUN npm i -g npm@latest yarn
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod u+x /docker-entrypoint.sh 
